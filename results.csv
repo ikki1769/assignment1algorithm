@@ -1,0 +1,11 @@
+algorithm,n,trial,time_ms,comparisons,allocations,max_depth
+mergesort,1000,1,4,10382,6000,6
+mergesort,1000,2,0,10380,6000,6
+mergesort,1000,3,0,10348,6000,6
+mergesort,1000,4,0,10379,6000,6
+mergesort,1000,5,0,10420,6000,6
+mergesort,1000,1,4,10274,6000,6
+mergesort,1000,2,1,10104,6000,6
+mergesort,1000,3,0,10372,6000,6
+mergesort,1000,4,1,10312,6000,6
+mergesort,1000,5,0,10188,6000,6
