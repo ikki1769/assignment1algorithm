@@ -9,10 +9,11 @@ import com.algorithms1.metrics.Metrics;
 import java.util.Random;
 
 public class Main {
+
     public static void main(String[] args) {
         if (args.length < 4) {
-            System.out.println("Usage: java -jar app.jar <algorithm> <n> <trials> <csvfile>");
-            System.out.println("Algorithms: mergesort, quicksort, select, closest");
+            System.out.println("Usage: java -jar app.jar <algorithm|all> <n> <trials> <csvfile>");
+            System.out.println("Algorithms: mergesort, quicksort, select, closest, all");
             return;
         }
 
@@ -24,44 +25,64 @@ public class Main {
         Random rand = new Random();
 
         for (int t = 1; t <= trials; t++) {
-            Metrics.reset();
-            long start = System.nanoTime();
-
             switch (algorithm) {
-                case "mergesort" -> {
-                    int[] arr = rand.ints(n, 0, 100000).toArray();
-                    new MergeSort().sort(arr);
-                }
-                case "quicksort" -> {
-                    int[] arr = rand.ints(n, 0, 100000).toArray();
-                    new QuickSort().sort(arr);
-                }
-                case "select" -> {
-                    int[] arr = rand.ints(n, 0, 100000).toArray();
-                    int k = n / 2; // ищем медиану
-                    DeterministicSelect.select(arr, k);
-                }
-                case "closest" -> {
-                    ClosestPair.Point[] pts = new ClosestPair.Point[n];
-                    for (int i = 0; i < n; i++) {
-                        pts[i] = new ClosestPair.Point(
-                                rand.nextDouble() * 10000,
-                                rand.nextDouble() * 10000
-                        );
-                    }
-                    ClosestPair.findClosest(pts);
+                case "mergesort" -> runMergeSort(n, t, csvFile, rand);
+                case "quicksort" -> runQuickSort(n, t, csvFile, rand);
+                case "select"    -> runSelect(n, t, csvFile, rand);
+                case "closest"   -> runClosest(n, t, csvFile, rand);
+                case "all" -> {
+                    runMergeSort(n, t, csvFile, rand);
+                    runQuickSort(n, t, csvFile, rand);
+                    runSelect(n, t, csvFile, rand);
+                    runClosest(n, t, csvFile, rand);
                 }
                 default -> {
-                    System.err.println(" Unknown algorithm: " + algorithm);
+                    System.err.println("Unknown algorithm: " + algorithm);
                     return;
                 }
             }
-
-            long elapsedNs = System.nanoTime() - start;
-            long elapsedMs = elapsedNs / 1_000_000;
-            Metrics.writeToCSV(csvFile, algorithm, n, t, elapsedMs);
         }
 
-        System.out.println(" Done. Results written to " + csvFile);
+        System.out.println("Done. Results written to " + csvFile);
+    }
+
+    private static void runMergeSort(int n, int trial, String csvFile, Random rand) {
+        Metrics.reset();
+        int[] arr = rand.ints(n, 0, 100000).toArray();
+        long start = System.nanoTime();
+        new MergeSort().sort(arr);
+        long elapsedMs = (System.nanoTime() - start) / 1_000_000;
+        Metrics.writeToCSV(csvFile, "mergesort", n, trial, elapsedMs);
+    }
+
+    private static void runQuickSort(int n, int trial, String csvFile, Random rand) {
+        Metrics.reset();
+        int[] arr = rand.ints(n, 0, 100000).toArray();
+        long start = System.nanoTime();
+        new QuickSort().sort(arr);
+        long elapsedMs = (System.nanoTime() - start) / 1_000_000;
+        Metrics.writeToCSV(csvFile, "quicksort", n, trial, elapsedMs);
+    }
+
+    private static void runSelect(int n, int trial, String csvFile, Random rand) {
+        Metrics.reset();
+        int[] arr = rand.ints(n, 0, 100000).toArray();
+        int k = n / 2;
+        long start = System.nanoTime();
+        DeterministicSelect.select(arr, k);
+        long elapsedMs = (System.nanoTime() - start) / 1_000_000;
+        Metrics.writeToCSV(csvFile, "select", n, trial, elapsedMs);
+    }
+
+    private static void runClosest(int n, int trial, String csvFile, Random rand) {
+        Metrics.reset();
+        ClosestPair.Point[] pts = new ClosestPair.Point[n];
+        for (int i = 0; i < n; i++) {
+            pts[i] = new ClosestPair.Point(rand.nextDouble() * 10000, rand.nextDouble() * 10000);
+        }
+        long start = System.nanoTime();
+        ClosestPair.findClosest(pts);
+        long elapsedMs = (System.nanoTime() - start) / 1_000_000;
+        Metrics.writeToCSV(csvFile, "closest", n, trial, elapsedMs);
     }
 }
